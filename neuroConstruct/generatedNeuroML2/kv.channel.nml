@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2 https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2beta4.xsd" id="kv">
+
+    <notes>Potassium channel, Hodgkin-Huxley style kinetics
+	Kinetic rates roughly based on Sah et al. Hamill et al. (1991)</notes>
+
+    <ionChannel id="kv" conductance="10pS" type="ionChannelHH" species="k">
+
+        <notes>Potassium channel, Hodgkin-Huxley style kinetics
+	Kinetic rates roughly based on Sah et al. Hamill et al. (1991)</notes>
+
+        <gateHHrates id="n" instances="1">
+            <q10Settings type="q10ExpTemp" q10Factor="2.3" experimentalTemp="23 degC"/>
+            <forwardRate type="HHExpLinearRate" rate="180e-3per_s" scale="0.009V" midpoint=".025V"/>
+            <reverseRate type="HHExpLinearRate" rate="18e-3per_s" scale="-0.009V" midpoint=".025V"/>
+        </gateHHrates>
+                            
+    </ionChannel>
+
+</neuroml>
