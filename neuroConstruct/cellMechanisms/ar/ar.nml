@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channelml xmlns="http://morphml.org/channelml/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:meta="http://morphml.org/metadata/schema" xsi:schemaLocation="http://morphml.org/channelml/schema  http://www.neuroml.org/NeuroMLValidator/NeuroMLFiles/Schemata/v1.8.1/Level2/ChannelML_v1.8.1.xsd" units="SI Units">
+
+    <meta:notes>Anomalous rectifier channel, Hodgkin-Huxley style kinetics
+		for RD Traub, J Neurophysiol 89:909-921, 2003, Neuron implementation: Maciej Lazarewicz 2003 (mlazarew@seas.upenn.edu)
+
+	Author NeuroML: Christoph Metzner (christoph.metzner@gmail.com)</meta:notes>
+
+    <channel_type name="ar">
+	
+
+             
+        <current_voltage_relation cond_law="ohmic" ion="ar" default_gmax="5" default_erev="-0.035">
+            
+            <q10_settings q10_factor="2.3" experimental_temp="23"/>
+                        
+            <gate name="m" instances="1">
+                <closed_state id="m0"/>
+                <open_state id="m"/>			
+                <time_course name="mtau" from="m0" to="m" expr_form="generic" expr="1/(exp(-14.6-0.086 * v)+exp(-1.87+0.07*v))"/>  
+                <steady_state name="minf" from="m0" to="m" expr_form="generic" expr="1/(1+exp((v+75)/5.5))"/>  
+            </gate>
+           
+		</current_voltage_relation>
+                
+    </channel_type>
+</channelml>

@@ -1,0 +1,38 @@
+// Vierling-Claassen 2010//////////////////////////////////////////// processes for excitatory optogenetic connections////////////////////////////////////////// ///////////////////////////////////////////////////////////// feed to exactly half of pyramidal cells in checkerboard pattern
+proc FeedtoIIhalf(){ local weight,delay, distX, distY, distance, preX, preY, postX, postY
+preY=FSy
+
+preX=FSxoffset=0
+  for postY=0,YD{
+  for postX=offset,XD{
+    distX = abs(preX-postX)
+    distY = abs(preY-postY)
+    distance = sqrt(distX^2 + distY^2)
+    weight = $3 * exp( -(distance^2) / ( $4^2) )
+    delay = $5 * 1 / (exp( -(distance^2) / ( $6^2) ) )
+
+       rconnect($o7, PL2[postX][postY], $1, $2, weight, delay, 0) 
+	postX=postX+1}	if (offset==0) {offset=1} else {offset=0}}}
+//////////////////////////////////////////////////////////// added target compartment to old version from Steph 2007 2009
+proc FeedtoIL2(){ local weight,delay, distX, distY, distance, preX, preY, postX, postY
+
+// Gaussian Feed Back/Forward to *all* Layer II/III Inhibitory Basket cells
+// usage: 	FeedtoIL2(L.2 basket compartment [0-15] (15 soma), //			receptor type [ 2=GABAa, 3-GABAb ],
+//         max_weight, weight_space_constant [>1],
+//         min-delay [ms.] , delay-space-constant [>1],
+//         FeedX object(eg. FF) )
+//
+preX=FSx
+preY=FSy
+  for postX=0,XD{
+   for postY=0,YD{
+    distX = abs(preX-postX)
+    distY = abs(preY-postY)
+    distance = sqrt(distX^2 + distY^2)
+    weight = $3 * exp( -(distance^2) / ( $4^2) )
+    delay = $5 * 1 / (exp( -(distance^2) / ( $6^2) ) )
+
+
+if (object_id(IPL2[postX][postY])   ){
+       rconnect($o7, IPL2[postX][postY], $1, $2, weight, delay, 0) }
+} } }

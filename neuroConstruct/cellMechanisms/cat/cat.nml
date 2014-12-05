@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channelml xmlns="http://morphml.org/channelml/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:meta="http://morphml.org/metadata/schema" xsi:schemaLocation="http://morphml.org/channelml/schema  http://www.neuroml.org/NeuroMLValidator/NeuroMLFiles/Schemata/v1.8.1/Level2/ChannelML_v1.8.1.xsd" units="SI Units">
+
+    <meta:notes>Calcium channel, Hodgkin-Huxley style kinetics
+	Original Neuron mod file (Maciej Lazarewicz 2003, mlazarew@seas.upenn.edu)
+	: Calcium low threshold T type current for RD Traub, J Neurophysiol 89:909-921, 2003
+
+	Author NeuroML file:Christoph Metzner (christoph.metzner@gmail.com)</meta:notes>
+
+    <channel_type name="cat">
+
+	
+             
+        <current_voltage_relation cond_law="ohmic" ion="cat" default_gmax="0.0" default_erev="0.125">
+            
+          
+          
+               <gate name="m" instances="2">
+                <closed_state id="m0"/>
+                <open_state id="m"/>			
+                <time_course name="mtau" from="m0" to="m" expr_form="generic" expr="0.204+0.333/(exp((v+15.8)/18.2)+exp((-v-131)/16.7))"/>  
+                <steady_state name="minf" from="m0" to="m" expr_form="generic" expr="1/(1+exp((-v-56)/6.2))"/>  
+           	</gate>
+
+	        <gate name="h" instances="1">
+                <closed_state id="h0"/>
+                <open_state id="h"/>			
+                <time_course name="htau" from="h0" to="h" expr_form="generic" expr="v &lt; -81? 0.333*exp((v+466)/66.6): 9.32+0.333*exp((-v-21)/10.5)"/>  
+                <steady_state name="hinf" from="h0" to="h" expr_form="generic" expr="1/(1+exp((v+80)/4))"/>  
+           	</gate>
+	</current_voltage_relation>
+                
+    </channel_type>
+</channelml>

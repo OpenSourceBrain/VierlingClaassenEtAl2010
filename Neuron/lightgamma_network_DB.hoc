@@ -1,0 +1,1168 @@
+//Dorea Vierling-Claassen, 2010
+// File that sets morphology and intrinsic parameters for three cell types, and processes for 
+// synaptic connectivity
+
+//
+create acell_home_
+access acell_home_
+
+//-----------
+// Synaptic templates, note that not all are used in the Vierling-Claassen et al., 2010 model
+//-----------
+//
+begintemplate AMPA
+public s
+objref s
+proc init() {
+s = new Exp2Syn(0.5)
+s.tau2=3
+s.e=0
+}
+endtemplate AMPA
+
+begintemplate AMPAF
+public s
+objref s
+proc init() {
+s = new FDSExp2Syn(0.5)
+s.tau1=0.5
+s.tau2=3
+s.e=0
+//////////////
+//s.f = 0.917
+s.f=.2
+s.tau_F=200
+s.d1=1
+s.tau_D1 = 380
+s.d2=1
+s.tau_D2 = 9200
+}
+endtemplate AMPAF
+
+begintemplate AMPAD
+public s
+objref s
+proc init() {
+s = new FDSExp2Syn(0.5)
+s.tau1=0.5
+s.tau2=3
+s.e=0
+//////////////
+s.f=.5
+s.tau_F = 94
+s.d1 = 0.416
+s.tau_D1 = 380
+s.d2 = 0.975
+s.tau_D2 = 9200
+}
+endtemplate AMPAD
+
+begintemplate NMDA
+public s
+objref s
+proc init() {
+s = new Exp2Syn(0.5)
+s.tau1=1
+s.tau2=20
+//s.tau2=40
+s.e=0
+}
+endtemplate NMDA
+
+begintemplate GABAA
+public s
+objref s
+proc init() {
+s = new Exp2Syn(0.5)
+s.tau1=0.5
+s.tau2=8 
+s.e=-80
+}
+endtemplate GABAA
+
+begintemplate GABAB
+// This template controls the extended inhibition produced by LTS cells in V-C et al 2010
+// Despite the name, we do not assume it is actually GABAB
+public s
+objref s
+proc init() {
+s = new Exp2Syn(0.5)
+s.tau1=1
+s.tau2=50
+s.e=-80
+}
+endtemplate GABAB
+
+begintemplate GABAAF
+public s
+objref s
+proc init() {
+s = new FDSExp2Syn(0.5)
+s.tau1=0.5
+//s.tau2=5
+s.tau2=10
+s.e=-80
+//////////////
+s.f=.07
+s.tau_F = 94
+s.d1=.9
+s.tau_D1 = 380
+s.d2=1
+s.tau_D2 = 9200
+}
+endtemplate GABAAF
+
+begintemplate GABAAD
+public s
+objref s
+proc init() {
+s = new FDSExp2Syn(0.5)
+s.tau1=0.5
+s.tau2=10
+s.e=-80
+//////////////
+s.f = 0.917
+s.tau_F = 94
+s.d1 = 0.416
+s.tau_D1 = 380
+s.d2 = 0.975
+s.tau_D2 = 9200
+}
+endtemplate GABAAD
+
+begintemplate GABABF
+public s
+objref s
+proc init() {
+s = new FDSExp2Syn(0.5)
+s.tau1=1
+s.tau2=20
+s.e=-80
+//////////////
+s.f = 0.917
+s.tau_F = 94
+s.d1 = 0.416
+s.tau_D1 = 380
+s.d2 = 0.975
+s.tau_D2 = 9200
+}
+endtemplate GABABF
+
+begintemplate GABABD
+public s
+objref s
+proc init() {
+s = new FDSExp2Syn(0.5)
+s.tau1=1
+s.tau2=20
+s.e=-80
+//////////////
+s.f = 0.917
+s.tau_F = 94
+s.d1 = 0.416
+s.tau_D1 = 380
+s.d2 = 0.975
+s.tau_D2 = 9200
+}
+endtemplate GABABD
+
+///////////////////////
+///////////////////////
+//--------------------
+// Pyramidal cell (RS) Template
+//--------------------
+// Roughly ollows steady state FI curve of Mason Larkman 90
+// Threshold behavior is as in Tateno and Robinson 2004 and Mason & Larkman 90, slow spikes that speed up as current goes up
+// some adaptation due to calcium and kca
+// Passive props are similar to those reported in Beierlein Connors 2003, Kapfer Scanziani 2007, Cauli Rossler 1997
+
+begintemplate Layer2_pyr
+public init, topol, basic_shape, subsets, geom, biophys
+public synlist, x, y, z, position, connect2target
+public ampa,nmda,gabaa,gabab,gabaaf,gababf,gabaad,gababd
+
+public soma, dend
+public all, somatic, dendritic, apical, basal, dend0, dend1
+public dend2, dend3, dend4, dend5, dend6 
+public pre, ampa, gabaa, gabab, nmda
+public gbar_ar, gbar_cat
+
+objref synlist
+
+proc init() {
+  topol()
+  subsets()
+  geom()
+  biophys()
+  geom_nseg()
+  synlist = new List()
+  synapses()
+  x = y = z = 0 // only change via position
+}
+
+create soma, dend[7]
+
+proc topol() { local i
+  connect dend(0), soma(1)
+  for i = 1, 2 connect dend[i](0), dend(1)
+  connect dend[3](0), dend[2](1)
+  connect dend[4](0), soma(0) 
+  for i = 5, 6 connect dend[i](0), dend[4](1)
+  basic_shape()
+}
+proc basic_shape() {
+  soma {pt3dclear() pt3dadd(-50, 765, 0, 1) pt3dadd(-50, 778, 0, 1)}
+  dend {pt3dclear() pt3dadd(-50, 778, 0, 1) pt3dadd(-50, 813, 0, 1)}
+  dend[1] {pt3dclear() pt3dadd(-50, 813, 0, 1) pt3dadd(-250, 813, 0, 1)}
+  dend[2] {pt3dclear() pt3dadd(-50, 813, 0, 1) pt3dadd(-50, 993, 0, 1)}
+  dend[3] {pt3dclear() pt3dadd(-50, 993, 0, 1) pt3dadd(-50, 1133, 0, 1)}
+  dend[4] {pt3dclear() pt3dadd(-50, 765, 0, 1) pt3dadd(-50, 715, 0, 1)}
+  dend[5] {pt3dclear() pt3dadd(-50, 715, 0, 1) pt3dadd(-156, 609, 0, 1)}
+  dend[6] {pt3dclear() pt3dadd(-50, 715, 0, 1) pt3dadd(56, 609, 0, 1)}
+}
+
+objref all, somatic, dendritic, apical, basal, dend0, dend1
+objref dend2, dend3, dend4, dend5, dend6
+proc subsets() { local i
+  objref all, somatic, dendritic, apical, basal, dend0, dend1
+  objref dend2, dend3, dend4, dend5, dend6
+  all = new SectionList()
+    soma all.append()	
+    for i=0, 6 dend[i] all.append()
+
+  somatic = new SectionList()
+    soma somatic.append()
+
+  dendritic = new SectionList()
+    for i=0, 6 dend[i] dendritic.append()
+
+  apical = new SectionList()
+    for i=0, 3 dend[i] apical.append()
+
+  basal = new SectionList()
+    for i=4, 6 dend[i] basal.append()
+
+  dend0 = new SectionList()
+    dend dend0.append()
+
+  dend1 = new SectionList()
+    dend[1] dend1.append()
+
+  dend2 = new SectionList()
+    dend[2] dend2.append()
+
+  dend3 = new SectionList()
+    dend[3] dend3.append()
+
+  dend4 = new SectionList()
+    dend[4] dend4.append()
+
+  dend5 = new SectionList()
+    dend[5] dend5.append()
+
+  dend6 = new SectionList()
+    dend[6] dend6.append()
+
+}
+
+proc geom() {
+  forsec all {  }
+   soma.L = 13
+   dend.L = 35
+   dend[1].L = 200
+   dend[2].L = 180
+   dend[3].L = 140
+   dend[4].L = 50
+   dend[5].L = 150
+   dend[6].L = 150
+   
+    soma.diam = 15.6
+    dend.diam = 2.5
+    dend[1].diam = 2.3
+    dend[2].diam = 2.4
+    dend[3].diam = 2
+    dend[4].diam = 2.5
+    dend[5].diam = 1.6
+    dend[6].diam = 1.6
+}
+
+
+proc geom_nseg() {
+  soma area(.5) // make sure diam reflects 3d points
+forsec all { if (L < 50) {nseg=1} else {nseg=int(L/50)} }
+}
+proc biophys() {
+ forsec all {
+	insert pas
+	insert kv
+	insert na
+	insert ca
+	insert kca
+	insert km
+	insert cad
+
+g_pas=.00004
+e_pas=-65
+Ra = 200
+cm = 2.065
+ek = -75
+ena = 60 
+}
+
+forsec somatic {
+gbar_na = 5000
+gbar_kv = 800
+gbar_km = 10
+gbar_ca = 60 
+gbar_kca = 40
+taur_cad=100
+	}
+
+forsec dendritic {
+gbar_na=5000
+gbar_kv=800
+gbar_ca = 30
+gbar_kca = 20
+gbar_km = 10
+	} 
+
+ }  //end proc biophysics 
+
+
+proc position() { local i
+  soma for i = 0, n3d()-1 {
+    pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+  }
+  x = $1  y = $2  z = $3
+}
+proc connect2target() { //$o1 target point process, $o2 returned NetCon
+  soma $o2 = new NetCon(&v(1), $o1)
+}
+
+objref ampa[8],nmda[8],gabaa[8],gabab[8],gabaaf[8],gababf[8],gabaad[8],gababd[8],ampaf[8],ampad[8]
+proc synapses() {
+  dend[0]{ ampa[0] = new AMPA() nmda[0] = new NMDA() gabaa[0] = new GABAA() gabab[0] = new GABAB() \
+    gabaaf[0] = new GABAAF() gababf[0] = new GABABF() gabaad[0] = new GABAAD() gababd[0] = new GABABD() \
+    ampaf[0] = new AMPAF() ampad[0] = new AMPAD()}
+  dend[1]{ ampa[1] = new AMPA() nmda[1] = new NMDA() gabaa[1] = new GABAA() gabab[1] = new GABAB() \
+    gabaaf[1] = new GABAAF() gababf[1] = new GABABF() gabaad[1] = new GABAAD() gababd[1] = new GABABD() \
+    ampaf[1] = new AMPAF() ampad[1] = new AMPAD()}
+  dend[2]{ ampa[2] = new AMPA() nmda[2] = new NMDA() gabaa[2] = new GABAA() gabab[2] = new GABAB() \
+    gabaaf[2] = new GABAAF() gababf[2] = new GABABF() gabaad[2] = new GABAAD() gababd[2] = new GABABD() \
+    ampaf[2] = new AMPAF() ampad[2] = new AMPAD()}
+  dend[3]{ ampa[3] = new AMPA() nmda[3] = new NMDA() gabaa[3] = new GABAA() gabab[3] = new GABAB() \
+    gabaaf[3] = new GABAAF() gababf[3] = new GABABF() gabaad[3] = new GABAAD() gababd[3] = new GABABD() \
+    ampaf[3] = new AMPAF() ampad[3] = new AMPAD()}
+  dend[4]{ ampa[4] = new AMPA() nmda[4] = new NMDA() gabaa[4] = new GABAA() gabab[4] = new GABAB() \
+    gabaaf[4] = new GABAAF() gababf[4] = new GABABF() gabaad[4] = new GABAAD() gababd[4] = new GABABD() \
+    ampaf[4] = new AMPAF() ampad[4] = new AMPAD()}
+  dend[5]{ ampa[5] = new AMPA() nmda[5] = new NMDA() gabaa[5] = new GABAA() gabab[5] = new GABAB() \
+    gabaaf[5] = new GABAAF() gababf[5] = new GABABF() gabaad[5] = new GABAAD() gababd[5] = new GABABD() \
+    ampaf[5] = new AMPAF() ampad[5] = new AMPAD()}
+  dend[6]{ ampa[6] = new AMPA() nmda[6] = new NMDA() gabaa[6] = new GABAA() gabab[6] = new GABAB() \
+    gabaaf[6] = new GABAAF() gababf[6] = new GABABF() gabaad[6] = new GABAAD() gababd[6] = new GABABD() \
+    ampaf[6] = new AMPAF() ampad[6] = new AMPAD()}
+  soma   { ampa[7] = new AMPA() nmda[7] = new NMDA() gabaa[7] = new GABAA() gabab[7] = new GABAB() \
+    gabaaf[7] = new GABAAF() gababf[7] = new GABABF() gabaad[7] = new GABAAD() gababd[7] = new GABABD() \
+    ampaf[7] = new AMPAF() ampad[7] = new AMPAD()}
+} 
+
+func is_art() { return 0 }
+
+endtemplate Layer2_pyr
+
+/////////////////////////////////////////////////////
+//-------------------
+// Template for Fast Spiking Interneuron (basket)
+//-------------------
+
+// Rest (~-71) closest to Tateno and Robinson, 2004 and Cauli et al., 1997
+// Tau_m (9.6 ms) in line with Beierlein et al., 2003, Kapfer et al., 2007, and Kawaguchi 1995
+// Resistance (185.06) is closest to Kawaguchi, not far off Cauli, chosen to be between extreme reported values
+// FI curve is very close to Tateno and Robinson 04, figure 4C
+// Follows Fanselow et al., 2008 closely until .3nA injection (190 in Fanselow plot).  Rates low compared to Cauli 97
+// Threshold is .11nA and generates 21 Hz activity
+
+begintemplate Layer2_basket
+
+public init, topol, basic_shape, subsets, geom, biophys
+public synlist, x, y, z, position, connect2target
+public ampa,nmda,gabaa,gabab
+
+public soma, dend
+public all, somatic, dendritic, apical, basal, dend0, dend1, dend2
+public pre, ampa, gabaa, gabab, nmda, ampaf, ampad
+public gbar_ar, gbar_cat
+
+objref synlist
+
+proc init() {
+  topol()
+  subsets()
+  geom()
+  biophys()
+  geom_nseg()
+  synlist = new List()
+  synapses()
+  x = y = z = 0 // only change via position
+}
+
+create soma, dend[15]
+
+proc topol() { local i
+
+  connect dend(0), soma(1)
+  connect dend[1](0), dend(1)
+  connect dend[4](0), dend(1)
+  for i = 2, 3 connect dend[i](0), dend[1](1)
+
+  connect dend[5](0), soma(1)
+  connect dend[6](0), dend[5](1)
+  connect dend[9](0), dend[5](1)
+  for i = 7, 8 connect dend[i](0), dend[6](1)
+
+  connect dend[10](0), soma(1)
+  connect dend[11](0), dend[10](1)
+  connect dend[14](0), dend[10](1)
+  for i = 12, 13 connect dend[i](0), dend[11](1)
+
+  basic_shape()
+}
+proc basic_shape() {
+  
+  soma {pt3dclear() pt3dadd(-8.2, 0, 0, 1) pt3dadd(0, 0, 0, 1)}
+    
+  dend {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(3.4, 0, 0, 1)}
+  dend[1] {pt3dclear() pt3dadd(3.4, 0, 0, 1) pt3dadd(11.8, 0, 0, 1)}
+  dend[2] {pt3dclear() pt3dadd(11.8, 0, 0, 1) pt3dadd(143.8, 55, 0, 1)}
+  dend[3] {pt3dclear() pt3dadd(11.8, 0, 0, 1) pt3dadd(118.8, -45, 0, 1)}
+  dend[4] {pt3dclear() pt3dadd(3.4, 0, 0, 1) pt3dadd(115.4, -84 , 0, 1)}
+  
+  dend[5] {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(0, 3.4, 0, 1)}
+  dend[6] {pt3dclear() pt3dadd(0, 3.4, 0, 1) pt3dadd(0, 11.8, 0, 1)}
+  dend[7] {pt3dclear() pt3dadd(0, 11.8, 0, 1) pt3dadd(-55, 143.8, 0, 1)}
+  dend[8] {pt3dclear() pt3dadd(0, 11.8, 0, 1) pt3dadd(45, 118.8, 0, 1)}
+  dend[9] {pt3dclear() pt3dadd(0, 3.4, 0, 1) pt3dadd(84, 115.4, 0, 1)}
+  
+  dend[10] {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(0, -3.4, 0, 1)}
+  dend[11] {pt3dclear() pt3dadd(0, -3.4, 0, 1) pt3dadd(0, -11.8, 0, 1)}
+  dend[12] {pt3dclear() pt3dadd(0, -11.8, 0, 1) pt3dadd(55, -143.8, 0, 1)}
+  dend[13] {pt3dclear() pt3dadd(0, -11.8, 0, 1) pt3dadd(-45, -118.8, 0, 1)}
+  dend[14] {pt3dclear() pt3dadd(0, -3.4, 0, 1) pt3dadd(-84, -115.4, 0, 1)}
+}
+
+objref all, somatic, dendritic, apical, basal, dend0, dend1, dend2
+
+proc subsets() { local i
+  objref all, somatic, dendritic, dend0, dend1, dend2
+  all = new SectionList()
+    soma all.append()
+    for i=0, 14 dend[i] all.append()
+
+  somatic = new SectionList()
+    soma somatic.append()
+
+  dendritic = new SectionList()
+    for i=0,14 dend[i] dendritic.append()
+
+  dend0 = new SectionList()
+    for i=0,4 dend[i] dend0.append()
+
+  dend1 = new SectionList()
+    for i=5,9 dend[i] dend1.append()
+    
+  dend2 = new SectionList()
+    for i=10,14 dend[i] dend2.append()  
+
+}
+
+
+proc geom() {
+  forsec all {  }
+   soma.L = 8.2
+   
+   dendlength1=3.4
+	
+   dend.L = dendlength1   
+   dend[1].L = 8.4
+   dend[2].L = 143
+   dend[3].L = 117
+   dend[4].L = 140
+   
+   dend[5].L = dendlength1  
+   dend[6].L = 8.4
+   dend[7].L = 143
+   dend[8].L = 117
+   dend[9].L = 140
+
+   dend[10].L = dendlength1  
+   dend[11].L = 8.4
+   dend[12].L = 143
+   dend[13].L = 117
+   dend[14].L = 140
+
+   soma.diam = 13.2
+
+   denddiam1=3
+   denddiam2=2
+   denddiam3=1.25
+   denddiam4=1.25
+   denddiam5=1.25
+
+   dend.diam = denddiam1
+   dend[1].diam = denddiam2
+   dend[2].diam = denddiam3
+   dend[3].diam = denddiam4
+   dend[4].diam = denddiam5
+
+   dend[5].diam = denddiam1
+   dend[6].diam = denddiam2
+   dend[7].diam = denddiam3
+   dend[8].diam = denddiam4
+   dend[9].diam = denddiam5
+   
+   dend[10].diam = denddiam1
+   dend[11].diam = denddiam2
+   dend[12].diam = denddiam3
+   dend[13].diam = denddiam4
+   dend[14].diam = denddiam5
+ }
+
+proc geom_nseg() {
+  soma area(.5) // make sure diam reflects 3d points
+forsec all { if (L < 50) {nseg=1} else {nseg=int(L/50)} }
+}
+
+/*
+proc geom_nseg() {
+  soma area(.5) // make sure diam reflects 3d points
+forsec all { if (L < 300) {nseg=1} else {nseg=int(L/300)} }
+}
+*/
+
+proc biophys() {
+ forsec all {
+	insert pas
+	insert kv
+	insert na
+	insert ca
+	insert kca
+	insert km	
+g_pas=.00012
+e_pas= -73
+Ra=200		// Mike's pyramid tuning, HDv2
+cm = 1 
+ek=-55
+ena=75
+ vshift=0
+ eca = 140 //from original Mainen patdemo code
+ ion_style("ca_ion",0,1,0,0,0)  //from original Mainen patdemo code
+}
+
+forsec somatic {
+	gbar_na=600
+	gbar_kv=500
+	gbar_ca = 0
+	gbar_kca = 0
+	gbar_km = 0
+	}
+
+forsec dendritic {
+
+	gbar_na=350
+	gbar_kv=350
+	gbar_ca = 0
+	gbar_kca = 0
+	gbar_km = 0
+	} 
+
+}  //end proc biophysics 
+
+proc position() { local i
+  soma for i = 0, n3d()-1 {
+    pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+  }
+  x = $1  y = $2  z = $3
+}
+proc connect2target() { //$o1 target point process, $o2 returned NetCon
+  soma $o2 = new NetCon(&v(1), $o1)
+}
+
+objref ampa[16],nmda[16],gabaa[16],gabab[16], ampaf[16],ampad[16]
+proc synapses() {
+  dend[0]{ ampa[0] = new AMPA() nmda[0] = new NMDA() gabaa[0] = new GABAA() gabab[0] = new GABAB() \
+  ampaf[0] = new AMPAF() ampad[0] = new AMPAD()}
+  dend[1]{ ampa[1] = new AMPA() nmda[1] = new NMDA() gabaa[1] = new GABAA() gabab[1] = new GABAB() \
+  ampaf[1] = new AMPAF() ampad[1] = new AMPAD()}
+  dend[2]{ ampa[2] = new AMPA() nmda[2] = new NMDA() gabaa[2] = new GABAA() gabab[2] = new GABAB() \
+  ampaf[2] = new AMPAF() ampad[2] = new AMPAD()}
+  dend[3]{ ampa[3] = new AMPA() nmda[3] = new NMDA() gabaa[3] = new GABAA() gabab[3] = new GABAB() \
+  ampaf[3] = new AMPAF() ampad[3] = new AMPAD()}
+  dend[4]{ ampa[4] = new AMPA() nmda[4] = new NMDA() gabaa[4] = new GABAA() gabab[4] = new GABAB() \
+  ampaf[4] = new AMPAF() ampad[4] = new AMPAD()}
+  dend[5]{ ampa[5] = new AMPA() nmda[5] = new NMDA() gabaa[5] = new GABAA() gabab[5] = new GABAB() \
+  ampaf[5] = new AMPAF() ampad[5] = new AMPAD()}
+  dend[6]{ ampa[6] = new AMPA() nmda[6] = new NMDA() gabaa[6] = new GABAA() gabab[6] = new GABAB() \
+  ampaf[6] = new AMPAF() ampad[6] = new AMPAD()}
+  dend[7]{ ampa[7] = new AMPA() nmda[7] = new NMDA() gabaa[7] = new GABAA() gabab[7] = new GABAB() \
+  ampaf[7] = new AMPAF() ampad[7] = new AMPAD()}
+  dend[8]{ ampa[8] = new AMPA() nmda[8] = new NMDA() gabaa[8] = new GABAA() gabab[8] = new GABAB() \
+  ampaf[8] = new AMPAF() ampad[8] = new AMPAD()}
+  dend[9]{ ampa[9] = new AMPA() nmda[9] = new NMDA() gabaa[9] = new GABAA() gabab[9] = new GABAB() \
+  ampaf[9] = new AMPAF() ampad[9] = new AMPAD()}
+  dend[10]{ ampa[10] = new AMPA() nmda[10] = new NMDA() gabaa[10] = new GABAA() gabab[10] = new GABAB() \
+  ampaf[10] = new AMPAF() ampad[10] = new AMPAD()}
+  dend[11]{ ampa[11] = new AMPA() nmda[11] = new NMDA() gabaa[11] = new GABAA() gabab[11] = new GABAB() \
+  ampaf[11] = new AMPAF() ampad[11] = new AMPAD()}
+  dend[12]{ ampa[12] = new AMPA() nmda[12] = new NMDA() gabaa[12] = new GABAA() gabab[12] = new GABAB() \
+  ampaf[12] = new AMPAF() ampad[12] = new AMPAD()}
+  dend[13]{ ampa[13] = new AMPA() nmda[13] = new NMDA() gabaa[13] = new GABAA() gabab[13] = new GABAB() \
+  ampaf[13] = new AMPAF() ampad[13] = new AMPAD()}
+  dend[14]{ ampa[14] = new AMPA() nmda[14] = new NMDA() gabaa[14] = new GABAA() gabab[14] = new GABAB() \
+  ampaf[14] = new AMPAF() ampad[14] = new AMPAD()}
+  
+  soma{ ampa[15] = new AMPA() nmda[15] = new NMDA() gabaa[15] = new GABAA() gabab[15] = new GABAB() \
+  ampaf[15] = new AMPAF() ampad[15] = new AMPAD()}
+} 
+
+func is_art() { return 0 }
+
+endtemplate Layer2_basket
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+//---------
+//Template for Low Threshold Spiking Interneuron
+//----------
+//Morphology as for FS basket cell but with larger Soma (as in Fanselow et al., 2008)
+//Rest -71.02
+//threshold .042 (2 spikes)
+//.342 45 Hz nA
+//Resistance 275
+//tau 15.4
+//
+
+begintemplate Layer2_som
+public init, topol, basic_shape, subsets, geom, biophys
+public synlist, x, y, z, position, connect2target
+public ampa,nmda,gabaa,gabab
+
+public soma, dend
+public all, somatic, dendritic, apical, basal, dend0, dend1, dend2
+public pre, ampa, gabaa, gabab, nmda, ampaf, ampad
+//public gbar_ar, gbar_cat
+//public Tfactor, Hfactor
+
+objref synlist
+
+proc init() {
+  topol()
+  subsets()
+  geom()
+  biophys()
+  geom_nseg()
+  synlist = new List()
+  synapses()
+  x = y = z = 0 // only change via position
+}
+
+create soma, dend[15]
+
+proc topol() { local i
+
+  connect dend(0), soma(1)
+  connect dend[1](0), dend(1)
+  connect dend[4](0), dend(1)
+  for i = 2, 3 connect dend[i](0), dend[1](1)
+
+  connect dend[5](0), soma(1)
+  connect dend[6](0), dend[5](1)
+  connect dend[9](0), dend[5](1)
+  for i = 7, 8 connect dend[i](0), dend[6](1)
+
+  connect dend[10](0), soma(1)
+  connect dend[11](0), dend[10](1)
+  connect dend[14](0), dend[10](1)
+  for i = 12, 13 connect dend[i](0), dend[11](1)
+
+  basic_shape()
+}
+proc basic_shape() {
+  
+  soma {pt3dclear() pt3dadd(-8.2, 0, 0, 1) pt3dadd(0, 0, 0, 1)}
+    
+  dend {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(3.4, 0, 0, 1)}
+  dend[1] {pt3dclear() pt3dadd(3.4, 0, 0, 1) pt3dadd(11.8, 0, 0, 1)}
+  dend[2] {pt3dclear() pt3dadd(11.8, 0, 0, 1) pt3dadd(143.8, 55, 0, 1)}
+  dend[3] {pt3dclear() pt3dadd(11.8, 0, 0, 1) pt3dadd(118.8, -45, 0, 1)}
+  dend[4] {pt3dclear() pt3dadd(3.4, 0, 0, 1) pt3dadd(115.4, -84 , 0, 1)}
+  
+  dend[5] {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(0, 3.4, 0, 1)}
+  dend[6] {pt3dclear() pt3dadd(0, 3.4, 0, 1) pt3dadd(0, 11.8, 0, 1)}
+  dend[7] {pt3dclear() pt3dadd(0, 11.8, 0, 1) pt3dadd(-55, 143.8, 0, 1)}
+  dend[8] {pt3dclear() pt3dadd(0, 11.8, 0, 1) pt3dadd(45, 118.8, 0, 1)}
+  dend[9] {pt3dclear() pt3dadd(0, 3.4, 0, 1) pt3dadd(84, 115.4, 0, 1)}
+  
+  dend[10] {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(0, -3.4, 0, 1)}
+  dend[11] {pt3dclear() pt3dadd(0, -3.4, 0, 1) pt3dadd(0, -11.8, 0, 1)}
+  dend[12] {pt3dclear() pt3dadd(0, -11.8, 0, 1) pt3dadd(55, -143.8, 0, 1)}
+  dend[13] {pt3dclear() pt3dadd(0, -11.8, 0, 1) pt3dadd(-45, -118.8, 0, 1)}
+  dend[14] {pt3dclear() pt3dadd(0, -3.4, 0, 1) pt3dadd(-84, -115.4, 0, 1)}
+}
+
+objref all, somatic, dendritic, apical, basal, dend0, dend1, dend2
+
+proc subsets() { local i
+  objref all, somatic, dendritic, dend0, dend1, dend2
+  all = new SectionList()
+    soma all.append()
+    for i=0, 14 dend[i] all.append()
+
+  somatic = new SectionList()
+    soma somatic.append()
+
+  dendritic = new SectionList()
+    for i=0,14 dend[i] dendritic.append()
+
+  dend0 = new SectionList()
+    for i=0,4 dend[i] dend0.append()
+
+  dend1 = new SectionList()
+    for i=5,9 dend[i] dend1.append()
+    
+  dend2 = new SectionList()
+    for i=10,14 dend[i] dend2.append()  
+
+}
+
+
+proc geom() {
+  forsec all {  }
+   //soma.L = 8.2
+   soma.L = 24.3
+
+   dend.L = 3.4
+   dend[1].L = 8.4
+   dend[2].L = 143
+   dend[3].L = 117
+   dend[4].L = 140
+   
+   dend[5].L = 3.4
+   dend[6].L = 8.4
+   dend[7].L = 143
+   dend[8].L = 117
+   dend[9].L = 140
+
+   dend[10].L = 3.4
+   dend[11].L = 8.4
+   dend[12].L = 143
+   dend[13].L = 117
+   dend[14].L = 140
+
+   soma.diam = 11
+   
+   denddiam1=3
+   denddiam2=2
+   denddiam3=1.25
+   denddiam4=1.25
+   denddiam5=1.25
+
+   dend.diam = denddiam1
+   dend[1].diam = denddiam2
+   dend[2].diam = denddiam3
+   dend[3].diam = denddiam4
+   dend[4].diam = denddiam5
+
+   dend[5].diam = denddiam1
+   dend[6].diam = denddiam2
+   dend[7].diam = denddiam3
+   dend[8].diam = denddiam4
+   dend[9].diam = denddiam5
+   
+   dend[10].diam = denddiam1
+   dend[11].diam = denddiam2
+   dend[12].diam = denddiam3
+   dend[13].diam = denddiam4
+   dend[14].diam = denddiam5
+   
+}
+
+
+proc geom_nseg() {
+  soma area(.5) // make sure diam reflects 3d points
+forsec all { if (L < 50) {nseg=1} else {nseg=int(L/50)} }
+}
+
+
+/*
+proc geom_nseg() {
+  soma area(.5) // make sure diam reflects 3d points
+forsec all { if (L < 300) {nseg=1} else {nseg=int(L/300)} }
+}
+*/
+
+
+proc biophys() {
+
+Tfactor=0.0002
+Ttau=0.0
+Hfactor=0.000001
+Htau=0.003
+
+
+forsec all {
+	insert pas
+	insert kv
+	insert na
+	insert ca
+
+	insert cad
+	taur_cad=100
+	
+ 	insert kca
+	insert km
+
+	insert cat
+	
+	insert ar
+
+g_pas=.00007
+e_pas=-74
+
+ Ra=200		// 
+ cm = 1   
+ ek = -60
+ ena=75
+ vshift_na=-18
+ eca = 140 //from original Mainen patdemo code
+ ion_style("ca_ion",0,1,0,0,0)  //from original Mainen patdemo code
+}
+
+
+// ****This is similar to how T & Ih are set in the Pyramidal V cell in Jones 2009
+
+        
+    soma distance()   // origin set at soma for distance(x) measurement
+	forsec dendritic{
+	for(x,0){ //gbar_cat(x)=0
+			//gbar_cat(x)=Tfactor*exp(Ttau*distance(x)) 
+			  gbar_ar(x)=Hfactor*exp(Htau*distance(x)) }
+			
+			  }
+
+	forsec somatic {
+	gbar_ar=Hfactor}
+
+forsec somatic {
+
+	gbar_na = 7000
+	gbar_kv = 350
+	gbar_ca = 30
+	gbar_kca = 5
+	gbar_km = 0
+	gbar_cat=Tfactor
+	}
+
+forsec dendritic {
+	gbar_na = 7000
+	gbar_kv=350
+	gbar_ca = 30
+	gbar_kca = 5
+	gbar_km = 0
+	gbar_cat=Tfactor
+	} 
+
+}  //end proc biophysics 
+
+proc position() { local i
+  soma for i = 0, n3d()-1 {
+    pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+  }
+  x = $1  y = $2  z = $3
+}
+proc connect2target() { //$o1 target point process, $o2 returned NetCon
+  soma $o2 = new NetCon(&v(1), $o1)
+}
+
+/*
+proc position() { local i
+  soma for i = 0, n3d()-1 {
+    pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+  }
+  x = $1  y = $2  z = $3
+}
+proc connect2target() { //$o1 target point process, $o2 returned NetCon
+  soma $o2 = new NetCon(&v(1), $o1)
+}
+*/
+
+objref ampa[16],nmda[16],gabaa[16],gabab[16], ampaf[16],ampad[16]
+proc synapses() {
+  dend[0]{ ampa[0] = new AMPA() nmda[0] = new NMDA() gabaa[0] = new GABAA() gabab[0] = new GABAB() \
+  ampaf[0] = new AMPAF() ampad[0] = new AMPAD()}
+  dend[1]{ ampa[1] = new AMPA() nmda[1] = new NMDA() gabaa[1] = new GABAA() gabab[1] = new GABAB() \
+  ampaf[1] = new AMPAF() ampad[1] = new AMPAD()}
+  dend[2]{ ampa[2] = new AMPA() nmda[2] = new NMDA() gabaa[2] = new GABAA() gabab[2] = new GABAB() \
+  ampaf[2] = new AMPAF() ampad[2] = new AMPAD()}
+  dend[3]{ ampa[3] = new AMPA() nmda[3] = new NMDA() gabaa[3] = new GABAA() gabab[3] = new GABAB() \
+  ampaf[3] = new AMPAF() ampad[3] = new AMPAD()}
+  dend[4]{ ampa[4] = new AMPA() nmda[4] = new NMDA() gabaa[4] = new GABAA() gabab[4] = new GABAB() \
+  ampaf[4] = new AMPAF() ampad[4] = new AMPAD()}
+  dend[5]{ ampa[5] = new AMPA() nmda[5] = new NMDA() gabaa[5] = new GABAA() gabab[5] = new GABAB() \
+  ampaf[5] = new AMPAF() ampad[5] = new AMPAD()}
+  dend[6]{ ampa[6] = new AMPA() nmda[6] = new NMDA() gabaa[6] = new GABAA() gabab[6] = new GABAB() \
+  ampaf[6] = new AMPAF() ampad[6] = new AMPAD()}
+  dend[7]{ ampa[7] = new AMPA() nmda[7] = new NMDA() gabaa[7] = new GABAA() gabab[7] = new GABAB() \
+  ampaf[7] = new AMPAF() ampad[7] = new AMPAD()}
+  dend[8]{ ampa[8] = new AMPA() nmda[8] = new NMDA() gabaa[8] = new GABAA() gabab[8] = new GABAB() \
+  ampaf[8] = new AMPAF() ampad[8] = new AMPAD()}
+  dend[9]{ ampa[9] = new AMPA() nmda[9] = new NMDA() gabaa[9] = new GABAA() gabab[9] = new GABAB() \
+  ampaf[9] = new AMPAF() ampad[9] = new AMPAD()}
+  dend[10]{ ampa[10] = new AMPA() nmda[10] = new NMDA() gabaa[10] = new GABAA() gabab[10] = new GABAB() \
+  ampaf[10] = new AMPAF() ampad[10] = new AMPAD()}
+  dend[11]{ ampa[11] = new AMPA() nmda[11] = new NMDA() gabaa[11] = new GABAA() gabab[11] = new GABAB() \
+  ampaf[11] = new AMPAF() ampad[11] = new AMPAD()}
+  dend[12]{ ampa[12] = new AMPA() nmda[12] = new NMDA() gabaa[12] = new GABAA() gabab[12] = new GABAB() \
+  ampaf[12] = new AMPAF() ampad[12] = new AMPAD()}
+  dend[13]{ ampa[13] = new AMPA() nmda[13] = new NMDA() gabaa[13] = new GABAA() gabab[13] = new GABAB() \
+  ampaf[13] = new AMPAF() ampad[13] = new AMPAD()}
+  dend[14]{ ampa[14] = new AMPA() nmda[14] = new NMDA() gabaa[14] = new GABAA() gabab[14] = new GABAB() \
+  ampaf[14] = new AMPAF() ampad[14] = new AMPAD()}
+  
+  soma{ ampa[15] = new AMPA() nmda[15] = new NMDA() gabaa[15] = new GABAA() gabab[15] = new GABAB() \
+  ampaf[15] = new AMPAF() ampad[15] = new AMPAD()}
+} 
+
+func is_art() { return 0 }
+
+endtemplate Layer2_som
+
+
+///////////////////////////////////////////////////////////////////
+/////////  	Network Construction
+///////////////////////////////////////////////////////////////////
+
+objref  AMPAconnects, NMDAconnects, GABAAconnects, GABABconnects
+objref  GABAAFconnects, GABABFconnects, GABAADconnects, GABABDconnects
+objref  AMPAFconnects, AMPADconnects
+
+AMPAconnects = new List()
+NMDAconnects = new List()
+GABAAconnects = new List()
+GABABconnects = new List()
+GABAAFconnects = new List()
+GABABFconnects = new List()
+GABAADconnects = new List()
+GABABDconnects = new List()
+AMPAFconnects = new List()
+AMPADconnects = new List()
+
+objref netcon
+
+/// Proc to construct Network
+
+proc rconnect(){
+// usage:       rconnect(source-cell, target-cell, target-section, rtype,
+// weight, delay, threshold )
+// rtype= 0=AMPA ||| 1=NMDA ||| 2=GABAa ||| 3= GABAb
+//        4=GABAa facilitating ||| 5=GABAa desenitizing
+//        6= GABAb facilitating ||| 7=GABAb desenitizing
+//        8= AMPA facilitating ||| 9=AMPA desenitizing
+// -----------------------------------------------------------------------
+
+if ( $4 == 0){ $o1.connect2target($o2.ampa[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ AMPAconnects.append(netcon) }
+
+if ( $4 == 1){ $o1.connect2target($o2.nmda[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ NMDAconnects.append(netcon) }
+
+if ( $4 == 2){ $o1.connect2target($o2.gabaa[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ GABAAconnects.append(netcon) }
+
+if ( $4 == 3){ $o1.connect2target($o2.gabab[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ GABABconnects.append(netcon) }
+
+if ( $4 == 4){ $o1.connect2target($o2.gabaaf[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ GABAAFconnects.append(netcon) }
+
+if ( $4 == 5){ $o1.connect2target($o2.gabaad[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ GABAADconnects.append(netcon) }
+
+if ( $4 == 6){ $o1.connect2target($o2.gababf[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ GABABFconnects.append(netcon) }
+
+
+if ( $4 == 7){ $o1.connect2target($o2.gababd[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ GABABDconnects.append(netcon) }
+
+if ( $4 == 8){ $o1.connect2target($o2.ampaf[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ AMPAFconnects.append(netcon) }
+
+if ( $4 == 9){ $o1.connect2target($o2.ampad[$3].s, netcon)
+netcon.weight = $5 netcon.delay = $6 netcon.threshold = $7
+ AMPADconnects.append(netcon) }
+
+if (( $4 > 9) || ($3 < 0)){ print "Receptor Type not supported" }
+}
+/////////////////////////////////////////////////////////////////////
+///From sj10-cortex.hoc, commenting out layer V cells b/c don't need them
+
+
+//        Create a 2-D grid of cells
+
+XD = X_DIM - 1
+YD = Y_DIM - 1
+//
+//objref PL5[X_DIM][Y_DIM]
+objref PL2[X_DIM][Y_DIM]
+for i=0,XD{
+for j=0,YD{
+//PL5[i][j] = new Layer5_pyr()
+//PL5[i][j].position(i*100,0,j*100)
+PL2[i][j] = new Layer2_pyr()
+PL2[i][j].position(i*100,535,j*100)
+} }
+
+//
+// Create a grid for Inhibitory cells that parallels Pyramidal cells
+objref IPL2[X_DIM][Y_DIM]  // grid for basket cells
+objref SPL2[X_DIM][Y_DIM]  // grid for Som cells
+//objref IPL5[X_DIM][Y_DIM]
+
+// original inhibitory grid for single cell type
+proc create_inhib(){local x, y
+// Create a sparse matrix of inhibitory cells
+// Usage: create_inhib(offset, space)
+// offset= position of 1st cell on X axis
+// space= number of blank positions on X axis between cells
+for y=0,YD{
+for x=$1,XD{
+IPL2[x][y]= new Layer2_basket()
+//IPL2[x][y] = new Inhib()
+//IPL5[x][y] = new Inhib()
+x=x+$2 
+}
+} }
+
+// create_inhib(0,2)
+
+proc create_inhib_basket(){local x, y
+// Create a sparse matrix of inhibitory basket cells, spaced every other row, and every third column
+// Usage: create_inhib(xoffset, yoffset, xspace, yspace)
+// xoffset= position of 1st cell on X axis
+// yoffset= position of 1st cell on Y axis
+// xspace= number of blank positions on X axis between cells
+// yspace= number of blank positions on Y axis between cells
+for y=$2,YD{
+for x=$1,XD{
+IPL2[x][y]= new Layer2_basket()
+//IPL2[x][y] = new Inhib()
+//IPL5[x][y] = new Inhib()
+x=x+$3 }
+y=y+$4}
+} 
+
+create_inhib_basket(0,0,2,1)
+
+proc create_inhib_som(){local x, y
+// Create a sparse matrix of inhibitory basket cells, spaced every other row, and every third column
+// Usage: create_inhib(xoffset, yoffset, xspace, yspace)
+// xoffset= position of 1st cell on X axis
+// yoffset= position of 1st cell on Y axis
+// xspace= number of blank positions on X axis between cells
+// yspace= number of blank positions on Y axis between cells
+for y=$2,YD{
+for x=$1,XD{
+SPL2[x][y]= new Layer2_som()
+//IPL2[x][y] = new Inhib()
+//IPL5[x][y] = new Inhib()
+x=x+$3 }
+y=y+$4}
+} 
+
+create_inhib_som(1,1,2,1)
+
+
+// NOTE: with commands create_inhib_basket(0,0,2,1) and create_inhib_som(1,1,2,1) generate grid of 
+// I cells that is in same locations as Steph's zig zag organization, except that the basket and 
+// som cells alternate rows (with som cells offset one space from the baskets in the x direction, 
+// and one in the y direction)
+
+//------------
+// original process to make grid of single inhibitory cell type
+//------------
+proc I_zig_zag(){local x, y, offset
+// Creates a sparse matrix of inhibitory cells staggered 
+// so that the 1st element along the X-axis 
+// begins alternatly at position 1 or 0.
+// Usage: I_zig_zag(space)
+// space= number of blank positions on X axis between cells
+offset = 0
+for y=0,YD{
+for x=offset,XD{
+IPL2[x][y] = new Layer2_basket()
+//IPL2[x][y] = new Inhib()
+//IPL5[x][y] = new Inhib()
+x=x+$1 }
+if (offset==0) {offset=1} else {offset=0}
+} }
+
+//I_zig_zag(2)
+
+////////////////////////////////////
+////////////////////////////////////
+
+// Template for Exogenous feeds to network  
+
+begintemplate FeedX
+
+public pp, connect2target, x, y, z, position, is_art
+
+external acell_home_
+
+objref pp
+
+proc init() {
+
+  acell_home_ pp = new NetStimG(.5)
+
+    pp.MeanInterval = 25
+
+    pp.SD = 0
+
+    pp.MeanStart = 0
+
+    pp.StartSD = 0
+    
+    pp.number = 1500
+    
+
+}
+
+func is_art() { return 1 }
+
+proc connect2target() { $o2 = new NetCon(pp, $o1) }
+
+proc position(){x=$1  y=$2  z=$3}
+
+endtemplate FeedX
+
+/////////////////////////////////////
+/////////////////////////////////////
+
+
+
+
+
+
+
+

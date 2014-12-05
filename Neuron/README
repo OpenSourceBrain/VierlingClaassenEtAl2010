@@ -1,0 +1,66 @@
+README
+
+This is the readme for code in support of the paper:
+
+Front Hum Neurosci. 2010 Nov 22;4:198. Computational modeling of
+distinct neocortical oscillations driven by cell-type selective
+optogenetic drive: separable resonant circuits controlled by
+low-threshold spiking and fast-spiking interneurons. Vierling-Claassen
+D, Cardin JA, Moore CI, Jones SR.
+
+Code was generated using NEURON Version 6.1
+
+Primary author of code was Dorea Vierling-Claassen (contact at
+dorea@brown.edu), in consultation with Mike Sikora, based on previous
+models by Stephanie R. Jones (2007 and 2009, also available on Model
+DB)
+
+TO RUN:
+
+Compile folder using mknrndll, then run the file light_batch_FSdrive,
+which generates 11 separate files, each containing 600 ms simulation,
+for baseline and 10 drive frequencies in the modeled case of light
+drive to fast-spiking (FS) cells case (files are saved in folder
+titled "batchsims")
+
+FILE INFORMATION:
+
+lightgamma_init_DB.hoc is called by light_batch_FSdrive and loads all
+relevant processes from the following files:
+
+1) lightgamma_network_DB.hoc defines cell morphology, intrinsic
+currents and synaptic dynamics for each cell type
+
+2) lightgamma_wiring_DB.hoc contains processes for wiring between
+populations and depends on files controlling random connectivity in
+confiles folder, connectivity is fixed for all runs. Connectivity
+files were generated in matlab using light_genconn_DB.m, also
+included. Connectivity files included here are exactly as in the
+published work.
+
+3) lightgamma_wiring_proc_DB.hoc includes processes for light drive
+
+4) lightgamma_localconn_DB.hoc sets network connectivity
+
+5) lightgamma_drive_DB.hoc sets light drive to either FS or RS cells,
+to run the RS case, will need to comment out FS drive and comment in
+RS drive in this file
+
+6) lightgamma_noise_DB.hoc adds background noise, based on a
+modification of noise from Destexhe et al 2001, also available on
+model DB
+
+7) lightgamma_LFP_DB.hoc contains process to generate average voltage
+over all pyramidal cells, which was the bases for subsequent signal
+processing
+
+** This code runs the FS case, to run the case of RS drive, define new
+filenames in light_batch_FS, comment out the FS drive and comment in
+the RS drive in lightgamma_drive_DB**
+
+Many thanks to other contributers to model DB's whose .mod files are
+included here. Credits are in individual files and additional
+citations are in the published work.
+
+-----
+Last updated 9-22-2011, Dorea V-C

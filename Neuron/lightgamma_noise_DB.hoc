@@ -1,0 +1,74 @@
+
+//*************
+// RS noise for Frontiers submission  Long trials 4-7-10 4-14-10, also 4-22-10_5 and 4-22-10_14
+//*************
+// As in trials 3/22/10_5 and 3-22-10_14
+// Process to put higher noise into compartments 5,6 (most distal compartments, representing input from distal areas)
+// Avg rate for RS in absence of input is 17.79 Hz, see Lab Bk 2 p 8-9, 3-12-10
+// low noise into other compartments (closer to soma)
+
+objref fl2[X_DIM*Y_DIM*10]
+j=0
+for postX=0,XD{
+for postY=0,YD{
+		//fl[postX][postY] = new Gfluct2(.5)
+		for case (&i, 2,3) PL2[postX][postY].dend[i] {fl2[j]=new Gfluct2(.5) 
+		fl2[j].g_e0 = .000002// .016 .015, .02, 0.0121 (umho)	: average excitatory conductance
+	 	fl2[j].g_i0 = 0.00002 // (umho)	: average inhibitory conductance
+	 	fl2[j].std_e = 0.0018 // (umho)	: standard dev of excitatory conductance
+        fl2[j].std_i = 0.0007 //(umho)	: standard dev of inhibitory conductance
+		j=j+1 print(j)}
+		for case (&i, 0,1,4,5,6) PL2[postX][postY].dend[i] {fl2[j]=new Gfluct2(.5) 
+		fl2[j].g_e0 = .000002// .016 .015, .02, 0.0121 (umho)	: average excitatory conductance
+	 	fl2[j].g_i0 = 0.00002 // (umho)	: average inhibitory conductance
+	 	fl2[j].std_e = 0.0009 // (umho)	: standard dev of excitatory conductance
+        fl2[j].std_i = 0.0007 //(umho)	: standard dev of inhibitory conductance
+		j=j+1 print(j)}
+		PL2[postX][postY].soma {fl2[j]=new Gfluct2(.5) 
+		fl2[j].g_e0 = .000002// .016 .015, .02, 0.0121 (umho)	: average excitatory conductance
+	 	fl2[j].g_i0 = 0.00002 // (umho)	: average inhibitory conductance
+	 	fl2[j].std_e = 0.0009 // (umho)	: standard dev of excitatory conductance
+        fl2[j].std_i = 0.0007 //(umho)	: standard dev of inhibitory conductance
+		j=j+1 print(j)}
+}}
+
+
+//*************
+// FS noise for Frontiers submission  Long trials 4-7-10 4-14-10, also 4-22-10_5 and 4-22-10_14
+//*************
+// Noise that gives avg rate of .625 Hz
+//Noise to I cells, no spikes w/out input
+objref Ifl[X_DIM * Y_DIM*16]
+j=0
+ for postX=0,XD{
+   for postY=0,YD{
+		if (object_id(IPL2[postX][postY]) ){
+  		forsec IPL2[postX][postY].all {Ifl[j]=new Gfluct2(.5) 
+  		Ifl[j].g_e0 = .000001 //.017 .016 .015, .02, 0.0121 (umho)	: average excitatory conductance
+	 	Ifl[j].g_i0 = .000025 //0.0573 // (umho)	: average inhibitory conductance
+	 	Ifl[j].std_e = .0003//0.0030 (umho)	: standard dev of excitatory conductance
+        Ifl[j].std_i = .0007//0.0066 (umho)	: standard dev of inhibitory conductance
+		j=j+1
+   		} }
+} } 
+
+//*************
+// SOM noise for Frontiers submission  Long trials 4-7-10 4-14-10, also 4-22-10_5 and 4-22-10_14
+//*************
+//(as in Noise used for sims until 3/29/10)
+//Noise to SOM cells
+objref Sfl[X_DIM * Y_DIM*16]
+j=0
+ for postX=0,XD{
+   for postY=0,YD{
+		if (object_id(SPL2[postX][postY]) ){
+  		forsec SPL2[postX][postY].all {Sfl[j]=new Gfluct2(.5) 
+  		Sfl[j].g_e0 = .000001 //.017 .016 .015, .02, 0.0121 (umho)	: average excitatory conductance
+	 	Sfl[j].g_i0 = .0005 //0.0573 // (umho)	: average inhibitory conductance
+	 	Sfl[j].std_e = .0001//0.0030 (umho)	: standard dev of excitatory conductance
+        Sfl[j].std_i = .0007//0.0066 (umho)	: standard dev of inhibitory conductance
+		j=j+1
+   		} }
+} }
+
+

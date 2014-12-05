@@ -1,0 +1,151 @@
+// Code for simulations described in:
+
+// Front Hum Neurosci. 2010 Nov 22;4:198. Computational modeling of distinct 
+// neocortical oscillations driven by cell-type selective optogenetic drive: 
+// separable resonant circuits controlled by low-threshold spiking and 
+// fast-spiking interneurons. Vierling-Claassen D, Cardin
+// JA, Moore CI, Jones SR.
+
+// Primary author Dorea Vierling-Claassen (dorea@brown.edu), in consultation 
+// with Mike Sikora & based on previous work by Stephanie R. Jones, 2009 & 2010
+
+// This file generates 11 600 ms trials with excitatory light drive to fast
+// spiking cells, one baseline, and 10 driven at frequencies between 8 and 80 Hz
+
+load_file("nrngui.hoc")
+load_file("lightgamma_init_DB.hoc")
+
+strdef FN0, FN1, FN2, FN3, FN4, FN5, FN6, FN7, FN8, FN9, FN10
+
+//--------------
+// Output file names, one file for each drive frequency
+//--------------
+
+FN0="batchsims/FS0.dat" //
+FN1="batchsims/FS8.dat" //
+FN2="batchsims/FS16.dat"//
+FN3="batchsims/FS32.dat"//
+FN5="batchsims/FS40.dat" //
+FN6="batchsims/FS48.dat" //
+FN7="batchsims/FS56.dat" //
+FN8="batchsims/FS64.dat" //
+FN9="batchsims/FS72.dat" //
+FN10="batchsims/FS80.dat" //
+
+// Number of runs for each set of parameters
+NRUN = 1  //any more than 1 run appended at end of the same file
+
+//----------------
+// Process to run simulation with modeled optogenetic drive, saves file with 
+// drive frequency in column one, time in column 2, and the model LFP (voltage //average at mid-apical dendrite compartment over all pyramidal cells) in column //3
+//----------------
+
+proc runonce(){
+finitialize(-65)
+fcurrent()
+
+while (t<tstop){
+          fadvance()
+          fprint( "%f %f %f \n", \
+ 			1000/FB.pp.MeanInterval,\
+ 			t,\
+ 			LFP_d())
+} // end while
+} //end runonce()
+
+
+//------------------
+// Process to run baseline simulation (no optogenetic drive)
+//------------------
+
+proc runonce_bl(){
+finitialize(-65)
+fcurrent()
+
+while (t<tstop){
+          fadvance()
+          fprint( "%f %f %f \n", \
+ 			0,\
+ 			t,\
+ 			LFP_d())
+} // end while
+} //end runonce()
+
+//----------------
+// Process to run one simulation for each of 10 frequency drives 
+// from 8 to 80 Hz, each saved in separate files according to the names listed // above for F0 through F10. In saved file, first column is drive frequency,
+// second column is time, third column is average voltage //across all pyramical
+// cells at the mid-apical dendrite compartment.
+//----------------
+
+proc runit(){ local j
+FB.pp.MeanInterval=1000/8
+FB.pp.number=0
+
+wopen(FN0)
+FB.pp.number=0
+for j=1,NRUN {runonce_bl() print(0) print(j)}
+wopen()
+
+wopen(FN1)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/8
+	for j=1,NRUN {runonce() print(1) print (j)}
+wopen()
+
+wopen(FN2)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/16
+	for j=1,NRUN {runonce() print(2) print (j)}
+wopen()
+
+wopen(FN3)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(3*8)
+	for j=1,NRUN {runonce() print(3) print (j)}
+wopen()
+
+wopen(FN4)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(4*8)
+	for j=1,NRUN {runonce() print(4) print (j)}
+wopen()
+
+wopen(FN5)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(5*8)
+	for j=1,NRUN {runonce() print(5) print (j)}
+wopen()
+
+wopen(FN6)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(8*6)
+	for j=1,NRUN {runonce() print(6) print (j)}
+wopen()
+
+wopen(FN7)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(8*7)
+	for j=1,NRUN {runonce() print(7) print (j)}
+wopen()
+
+wopen(FN8)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(8*8)
+	for j=1,NRUN {runonce() print(8) print (j)}
+wopen()
+
+wopen(FN9)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(8*9)
+	for j=1,NRUN {runonce() print(9) print (j)}
+wopen()
+
+wopen(FN10)
+FB.pp.number=5000
+FB.pp.MeanInterval=1000/(10*8)
+	for j=1,NRUN {runonce() print(10) print (j)}
+wopen()
+}
+
+runit()

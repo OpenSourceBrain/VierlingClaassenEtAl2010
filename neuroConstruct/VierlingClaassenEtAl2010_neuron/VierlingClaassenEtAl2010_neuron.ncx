@@ -17,7 +17,7 @@ The cell positions &amp; network connections in memory reflect the instances in 
    <string>neuroConstruct v1.7.1</string>
   </void>
   <void property="projectName">
-   <string>VierlingClaassenEtAl2010</string>
+   <string>VierlingClaassenEtAl2010_neuron</string>
   </void>
  </object>
  <object class="ucl.physiol.neuroconstruct.project.RegionsInfo">
@@ -1372,30 +1372,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_3</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_4</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_ca</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_3_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_3_v_1</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_3_v_2</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>100.0</float>
      </void>
@@ -1403,30 +1382,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_3</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_5</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_ca_hyp</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_3_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_3_v_1</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_3_v_2</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>200.0</float>
      </void>
@@ -1434,30 +1392,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_4</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_6</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_cat</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_4_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_4_v_1</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_4_v_2</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>100.0</float>
      </void>
@@ -1465,30 +1402,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_4</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_7</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_cat_hyp</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_4_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_4_v_1</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_4_v_2</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>200.0</float>
      </void>
@@ -1496,27 +1412,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_5</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_8</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_kca</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_5_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_5_v_1</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>100.0</float>
      </void>
@@ -1524,27 +1422,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_5</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_9</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_kca_hyp</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_5_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_5_v_1</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>200.0</float>
      </void>
@@ -1552,27 +1432,9 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_6</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_10</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_km</string>
      </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_6_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_6_v_1</string>
-      </void>
-     </void>
      <void property="simDuration">
       <float>100.0</float>
      </void>
@@ -1580,26 +1442,8 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_6</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_11</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_km_hyp</string>
-     </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_6_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_6_v_1</string>
-      </void>
      </void>
      <void property="simDuration">
       <float>200.0</float>
@@ -1608,29 +1452,8 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_7</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_12</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_na</string>
-     </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_7_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_7_v_1</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_7_v_2</string>
-      </void>
      </void>
      <void property="simDuration">
       <float>100.0</float>
@@ -1639,29 +1462,8 @@ The cell positions &amp; network connections in memory reflect the instances in 
    </void>
    <void method="add">
     <object class="ucl.physiol.neuroconstruct.project.SimConfig">
-     <void property="cellGroups">
-      <void method="add">
-       <string>CellGroup_7</string>
-      </void>
-     </void>
-     <void property="inputs">
-      <void method="add">
-       <string>Input_13</string>
-      </void>
-     </void>
      <void property="name">
       <string>Test_na_hyp</string>
-     </void>
-     <void property="plots">
-      <void method="add">
-       <string>CellGroup_7_v</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_7_v_1</string>
-      </void>
-      <void method="add">
-       <string>CellGroup_7_v_2</string>
-      </void>
      </void>
      <void property="simDuration">
       <float>200.0</float>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channelml xmlns="http://morphml.org/channelml/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:meta="http://morphml.org/metadata/schema" xsi:schemaLocation="http://morphml.org/channelml/schema  http://www.neuroml.org/NeuroMLValidator/NeuroMLFiles/Schemata/v1.8.1/Level2/ChannelML_v1.8.1.xsd" units="SI Units">
+
+    <meta:notes>Sodium channel, Hodgkin-Huxley style kinetics
+	Original Neuron mod file (Zach Mainen, Salk Institute, 1994, zach@salk.edu)
+	: Kinetics were fit to data from Huguenard et al. (1988) and Hamill et	al. (1991)
+
+	qi is not well constrained by the data, since there are no points
+	between -80 and -55.  So this was fixed at 5 while the thi1,thi2,Rg,Rd
+	were optimized using a simplex least square proc
+
+	voltage dependencies are shifted approximately from the best
+	fit to give higher threshold
+
+	Author NeuroML file:Christoph Metzner (christoph.metzner@gmail.com)</meta:notes>
+
+    <channel_type name="na">
+	
+		<status value="known_issues">
+            <meta:issue> temperature adjustment improper (factor 'tadj' has to be added in conductance eq.) </meta:issue>
+	    <meta:issue> beta for inactivation h improper  </meta:issue>
+		</status> 
+	
+             
+        <current_voltage_relation cond_law="ohmic" ion="na" default_gmax="1000" default_erev="0.060">
+            
+            <q10_settings q10_factor="2.3" experimental_temp="23"/>
+	    <offset value="0.010"/>            
+          
+            <gate name="m" instances="3">
+                <closed_state id="m0"/>
+                <open_state id="m"/>			
+                <transition name="alpha" from="m0" to="m" expr_form="exp_linear" rate="182e-3" scale="9e-3" midpoint="-.035"/>  
+                <transition name="beta" from="m" to="m0" expr_form="exp_linear" rate="124e-3" scale="9e-3" midpoint=".035"/>  
+            </gate>
+
+            <gate name="h" instances="1">
+                <closed_state id="h0"/>
+                <open_state id="h"/>			
+                <transition name="alpha" from="h0" to="h" expr_form="exp_linear" rate="9.1e-3" scale="5e-3" midpoint="-.050"/>  
+                <transition name="beta" from="h" to="h0" expr_form="exp_linear" rate="24e-3" scale="5e-3" midpoint=".075"/>  
+            </gate>
+		</current_voltage_relation>
+                
+    </channel_type>
+</channelml>

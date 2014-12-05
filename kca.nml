@@ -6,25 +6,28 @@
     xsi:schemaLocation="http://morphml.org/channelml/schema  http://www.neuroml.org/NeuroMLValidator/NeuroMLFiles/Schemata/v1.8.1/Level2/ChannelML_v1.8.1.xsd"
     units="SI Units">
 
-    <meta:notes>Potassium channel, Hodgkin-Huxley style kinetics
-	Kinetic rates roughly based on Sah et al. Hamill et al. (1991)</meta:notes>
+    <meta:notes>Calcium-dependent potassium channel
+		Based on Pennefather (1990) -- sympathetic ganglion cells taken from Reuveni et al (1993) -- neocortical cells 
+		Neuron implementation: Zach Mainen, Salk Institute, 1995, zach@salk.edu
 
-    <channel_type name="kv">
+		Author NeuroML: Christoph Metzner (christoph.metzner@gmail.com)</meta:notes>
+
+    <channel_type name="kca">
 	
 		<status value="known_issues">
             <meta:issue> temperature adjustment improper (factor 'tadj' has to be added in conductance eq.) </meta:issue>
 		</status> 
 
              
-        <current_voltage_relation cond_law="ohmic" ion="k" default_gmax="5" default_erev="-0.080">
-            
+        <current_voltage_relation cond_law="ohmic" ion="k" default_gmax="10" default_erev="-0.080">
+            <conc_dependence name="Calcium" ion="ca" charge="2" variable_name="ca_conc" min_conc="7.55e-7" max_conc="0.050"/>
             <q10_settings q10_factor="2.3" experimental_temp="23"/>
                         
             <gate name="n" instances="1">
                 <closed_state id="n0"/>
                 <open_state id="n"/>			
-                <transition name="alpha" from="n0" to="n" expr_form="exp_linear" rate="200e-3" scale="9e-3" midpoint=".025" />  
-                <transition name="beta" from="n" to="n0" expr_form="exp_linear" rate="20e-3" scale="-9e-3" midpoint=".025" />  
+                <transition name="alpha" from="n0" to="n" expr_form="generic" expr="0.00001*ca_conc" />  
+                <transition name="beta" from="n" to="n0" expr_form="generic" expr="0.00002" />  
             </gate>
            
 		</current_voltage_relation>

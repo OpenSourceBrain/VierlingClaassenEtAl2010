@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channelml xmlns="http://morphml.org/channelml/schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:meta="http://morphml.org/metadata/schema"
+    xsi:schemaLocation="http://morphml.org/channelml/schema  http://www.neuroml.org/NeuroMLValidator/NeuroMLFiles/Schemata/v1.8.1/Level2/ChannelML_v1.8.1.xsd"
+    units="SI Units">
+
+    <meta:notes>Sodium channel, Hodgkin-Huxley style kinetics
+	Original Neuron mod file (Alain Destexhe, Salk Institute, Nov 12, 1992)
+	Internal calcium concentration due to calcium currents and pump.
+	: Differential equations.
+	:
+	: Simple model of ATPase pump with 3 kinetic constants (Destexhe 92)
+	:     Cai + P  - CaP -> Cao + P  (k1,k2,k3)
+	: A Michaelis-Menten approximation is assumed, which reduces the complexity
+	: of the system to 2 parameters: 
+	:       kt = tot enzyme concentration> * k3  -> TIME CONSTANT OF THE PUMP
+	:	kd = k2/k1 (dissociation constant)    -> EQUILIBRIUM CALCIUM VALUE
+	: The values of these parameters are chosen assuming a high affinity of 
+	: the pump to calcium and a low transport capacity (cfr. Blaustein, 
+	: TINS, 11: 438, 1988, and references therein).  
+	:
+	: Units checked using "modlunit" -> factor 10000 needed in ca entry
+	:
+	: VERSION OF PUMP + DECAY (decay can be viewed as simplified buffering)
+	:
+	: All variables are range variables
+	:
+	:
+	: This mechanism was published in:  Destexhe, A. Babloyantz, A. and 
+	: Sejnowski, TJ.  Ionic mechanisms for intrinsic slow oscillations in
+	: thalamic relay neurons. Biophys. J. 65: 1538-1552, 1993)
+	:
+	: 
+
+	Author NeuroML file:Christoph Metzner (christoph.metzner@gmail.com)</meta:notes>
+
+     <ion name="ca" charge="2" role="SignallingSubstance">  
+        <meta:notes>Signifies that the ion is involved in a process which alters its concentration</meta:notes>
+    </ion>
+    
+    <ion_concentration name="cad">
+
+        <ion_species name="ca"/>
+        
+        <decaying_pool_model resting_conc ="100e-6" decay_constant="200e-3">
+            
+            <pool_volume_info shell_thickness = "1e-7"/>
+            
+        </decaying_pool_model>
+        
+        
+    </ion_concentration>
+        
+</channelml>
